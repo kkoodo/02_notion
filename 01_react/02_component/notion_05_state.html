@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05_state</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1"></div>
+
+    <script type="text/babel">
+        class TestState1 extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    number : 0
+                };
+            };
+
+            render() {
+                /* state에 저장된 프로퍼티 값을 구조 분해 할당을 이용하여 변수 number에 저장 */
+                const {number} = this.state;
+
+                return (
+                    <>
+                    <h1>{this.state.number}</h1>
+                    <button onClick={() => this.setState({number : number - 1})}>- 1</button>
+                    <button onClick={() => this.setState({number : number + 1})}>+ 1</button>
+                    </>
+                )
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<TestState1/>);
+    </script>
+
+    <div id="root2"></div>
+
+    <script type="text/babel">
+        /* 비동기적 상태변화 */
+        class TestState2 extends React.Component {
+            state = {
+                number : 0
+            };
+
+            render() {
+                const {number} = this.state;
+
+                return (
+                    <>
+                        <h1 style={(number < 0) ? {color : 'red'} : {color : 'blue'}}
+                        >
+                            Count : {number}
+                        </h1>
+                        <button onClick={ () => this.setState({number : number - 1})}>- 1</button>
+                        <button onClick={ () => {
+                                                this.setState({number : number + 1})
+                                                this.setState({number : this.state.number + 1})
+                                        }}
+                        >+ 2
+                        </button>
+                    </>
+                )
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<TestState2/>);
+    </script>
+
+    <div id="root3"></div>
+
+    <script type="text/babel">
+        /* 동기적 상태변화 */
+        class TestState3 extends React.Component {
+            state = {
+                number : 0
+            };
+
+            render() {
+                const {number} = this.state;
+
+                return (
+                    <>
+                        <h1 style={(number < 0) ? {color : 'pink'} : {color : 'green'}}
+                        >
+                            Count : {number}
+                        </h1>
+                        <button onClick={ () => this.setState({number : number - 1})}>- 1</button>
+                        <button onClick={ () => {
+                                                /* props를 명시하는 경우 작성 방법 */
+                                                this.setState((prevState, props) => {
+                                                    return {
+                                                        number : prevState.number + 1
+                                                    };
+                                                });
+                                                /* props를 생략하는 경우 작성 방법 */
+                                                this.setState(prevState => {return {number : prevState.number + 1}});
+                                                /* return 구문을 생략하는 경우 작성 방법 (반환 값이 객체 -> 소괄호 작성) */
+                                                this.setState(prevState => ({number : prevState.number + 1}));
+                                        }}
+                        >+ 3
+                        </button>
+                    </>
+                )
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(<TestState3/>);
+    </script>
+
+    <hr>
+
+    <div id="root4"></div>
+    
+    <script type="text/babel">
+        class TestAfterSetState extends React.Component {
+            state = {
+                IsPink : false
+            };
+
+            render() {
+                const {IsPink} = this.state;
+
+                const style = {
+                    width : 100,
+                    height : 50,
+                    backgroundColor : IsPink? 'pink' : 'teal',
+                    transition : '1.5s'
+                };
+
+                return (
+                    <>
+                        <div style={style}></div>
+                        <button onClick={() => {
+                            this.setState(
+                                {IsPink : !IsPink},
+                                () => console.log(IsPink? 'Color was pink!' : 'Color was teal!')
+                            )}}>
+                            {IsPink? 'Turn on Teal' : 'Turn on Pink'}
+                        </button>
+                    </>
+                )
+            };
+        };
+        ReactDOM.createRoot(document.getElementById('root4')).render(<TestAfterSetState/>);
+    </script>
+
+    <hr>
+
+    <div id="root5"></div>
+
+    <script type="text/babel">
+        const {useState} = React;
+
+        function TestUseState() {
+            console.log('state change');
+
+            const [message, setMessage] = useState('Click button');
+            const [color, setColor] = useState('black');
+
+            const onClickDog = () => setMessage('Dog is Love!');
+            const onClickCat = () => setMessage('Cat is Love!');
+
+            return (
+                <>
+                <h1 style={{color, backgroundColor : 'pink', border: '1px solid black'}}>{message}</h1>
+                <div>
+                    <h3>Which do you like better?</h3>
+                    <button onClick={onClickDog}>DOG</button>
+                    <button onClick={onClickCat}>CAT</button>
+                </div>
+                <div>
+                    <h3>Let's change the font color!</h3>
+                    <button onClick={() => setColor('white')}>WHITE</button>
+                    <button onClick={() => setColor('black')}>BLACK</button>
+                </div>
+                </>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root5')).render(<TestUseState/>);
+    </script>
+</body>
+</html>

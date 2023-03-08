@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .boxing {
+            width: 500px;
+            height: 500px;
+            float: left;
+            border: 1px solid black;
+            margin: 10px 10px 10px 10px;
+        }
+        .page {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            float: left;
+        }
+
+        .header {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content {
+            height: 300px;
+            /* flex: 1; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        .footer {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+    <title>props drilling & useContext</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1" class="boxing"></div>
+    <div id="root2" class="boxing"></div>
+
+    <script type="text/babel">
+        /* HomeOne props drilling */
+        const {useState} = React;
+
+        function HomeOneHeader({isDark}) {
+            return (
+                <header
+                    className="header"
+                    style={
+                        {
+                            backgroundColor: isDark? 'black' : 'lightgray',
+                            color: isDark? 'white' : 'black'
+                        }
+                    }
+                >
+                    <h1>HomeOneHeader</h1>
+                </header>
+            );
+        };
+
+        function HomeOneContent({isDark}) {
+            return (
+                <div
+                    className="content"
+                    style={
+                        {
+                            backgroundColor: isDark? 'gray' : 'white',
+                            color: isDark? 'white' : 'black'
+                        }
+                    }
+                >
+                    <p>HomeOneContent</p>
+                </div>
+            );
+        };
+
+        function HomeOneFooter({isDark, setIsDark}) {
+            const toggleHandler1 = () => {setIsDark(!isDark)};
+
+            return (
+                <footer
+                    className="footer"
+                    style={
+                        {
+                            backgroundColor: isDark? 'black' : 'lightgray',
+                            color: isDark? 'white' : 'black'
+                        }
+                    }
+                >
+                    <button onClick={toggleHandler1}>{isDark? 'Light Mode' : 'Dark Mode'}</button>
+                        HomeOneFooter
+                </footer>
+            );
+        };
+
+        function PageOne({isDark, setIsDark}) {
+            return (
+                <>
+                    <div className="page">
+                        <HomeOneHeader isDark={isDark}/>
+                        <HomeOneContent isDark={isDark}/>
+                        {/* ↓ [Step 3] Footer로 2차 전달 */}
+                        <HomeOneFooter isDark={isDark} setIsDark={setIsDark}/>
+                    </div>
+                </>
+            )
+        };
+
+        function AppOne() {
+            // ↓ [Step 1] Footer에 존재하는 버튼 클릭 시 적용될 state 작성
+            const [isDark, setIsDark] = useState(false);
+            // ↓ [Step 2] Page로 1차 전달
+            return <PageOne isDark={isDark} setIsDark={setIsDark}/>
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<AppOne/>);
+    </script>
+
+    <script type="text/babel">
+        /* HomeTwo useContext */
+        /* createContext, useContext 추가 */
+        const {createContext, useContext} = React;
+        const DarkModeContext = createContext(null);
+
+        function HomeTwoHeader() {
+            const context = useContext(DarkModeContext);
+            const {isDark} = context;
+
+            return (
+                <header
+                    className="header"
+                    style={
+                        {
+                            backgroundColor: isDark? 'black' : 'lightgray',
+                            color: isDark? 'white' : 'black'
+                        }
+                    }
+                >
+                    <h1>HomeTwoHeader</h1>
+                </header>
+            );
+        };
+
+        function HomeTwoContent() {
+            const context = useContext(DarkModeContext);
+            const {isDark} = context;
+
+            return (
+                <div
+                    className="content"
+                    style={
+                        {
+                            backgroundColor: isDark? 'gray' : 'white',
+                            color: isDark? 'white' : 'black'
+                        }
+                    }
+                >
+                    <p>HomeTwoContent</p>
+                </div>
+            );
+        };
+
+        function HomeTwoFooter() {
+            const context = useContext(DarkModeContext);
+            const {isDark, setIsDark} = context;
+            const toggleHandler2 = () => {setIsDark(!isDark)};
+
+            return (
+                <footer
+                    className="footer"
+                    style={
+                        {
+                            backgroundColor: isDark? 'black' : 'lightgray',
+                            color: isDark? 'white' : 'black'
+                        }
+                    }
+                >
+                    <button onClick={toggleHandler2}>{isDark? 'Light Mode' : 'Dark Mode'}</button>
+                        HomeTwoFooter
+                </footer>
+            );
+        };
+
+        function PageTwo() {
+            return (
+                <>
+                    <div className="page">
+                        <HomeTwoHeader/>
+                        <HomeTwoContent/>
+                        <HomeTwoFooter/>
+                    </div>
+                </>
+            )
+        };
+
+        function AppTwo() {
+            const [isDark, setIsDark] = useState(false);
+            return (
+                <DarkModeContext.Provider value={{isDark, setIsDark}}>
+                    <PageTwo/>
+                </DarkModeContext.Provider>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<AppTwo/>);
+    </script>
+</body>
+</html>

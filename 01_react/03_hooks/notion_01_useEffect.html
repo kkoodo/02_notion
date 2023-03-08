@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01_useEffect</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1"></div>
+
+    <script type="text/babel">
+        // const {useEffect} = React;
+
+        function UseEffectBasic({text}) {
+            console.log('▶ rendering function');
+
+            useEffect(() => {
+                console.log('▶ useEffect is working');
+                console.log("▷ useEffect's console :", text);
+            });
+
+            return (
+                <h1>{console.log('▶ return from useEffect')}{text}</h1>
+            );
+        };
+
+        const text = 'TEST UseEffectBasic';
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<UseEffectBasic text = {text}/>);
+    </script>
+
+    <div id="root2"></div>
+
+    <script type="text/babel">
+        // const {useState, useEffect} = React;
+
+        function UseEffectMount() {
+
+            const [time, setTime] = useState(new Date().toLocaleTimeString());
+
+            useEffect(() => {
+                console.log('▶ Only working at Mount point');
+                console.log('▷ time state in useEffect :', time);
+            },[]);
+
+            return (
+                <>
+                    <button onClick={() => setTime(new Date().toLocaleTimeString())}>
+                        Current Time    
+                    </button>
+                    <h1>{time}</h1>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<UseEffectMount/>);
+    </script>
+
+    <div id="root3"></div>
+
+    <script type="text/babel">
+        // const {useState, useEffect} = React;
+
+        function UseEffectMountAndUpdate() {
+
+            const [name, setName] = useState({
+                firstName : '',
+                lastName : ''
+            });
+
+            const onChangeHandler = (e) => {
+                setName({
+                    ...name,
+                    [e.target.name] : e.target.value
+                });
+            };
+
+            useEffect(
+                () => {console.log('▶ firstName is update');},
+                // ↓ 동작하기 전의 변경 전 값과 변경 후 값을 비교하여 일치하면 호출을 건너뜀
+                //   (ex : 이미 입력된 값을 ctrl + c & ctrl + v 하면 동작 X)
+                [name.firstName]
+            );
+
+            useEffect(
+                () => {console.log('▶ lastName is update');},
+                [name.lastName]
+            );
+
+            return (
+                <>
+                    <label>First Name : </label>
+                    <input type="text" name="firstName" onChange={onChangeHandler}/>
+                    <br/>
+                    <label>Last Name : </label>
+                    <input type="text" name="lastName" onChange={onChangeHandler}/>
+                    <h3>First Name : {name.firstName}</h3>
+                    <h3>Last Name : {name.lastName}</h3>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(<UseEffectMountAndUpdate/>);
+    </script>
+
+    <div id="root4"></div>
+
+    <script type="text/babel">
+        // const {useState, useEffect} = React;
+
+        function UseEffectCleanUp1() {
+            const [count, setCount] = useState(0);
+
+            useEffect(() => {
+                console.log('▶ useEffect is working');
+                console.log("▷ count state in useEffect :", count);
+
+                /* 정리 함수 */
+                return () => {
+                    console.log('▶ clean-up is working');
+                    console.log("▷ count state in clean-up :", count);
+                }
+            }/* , [] */);
+            // ↑ 빈 배열을 작성하지 않았으므로, 마운트 & 언마운트시 모두 동작
+
+            return (
+                <>
+                    <h1>count : {count}</h1>
+                    <button onClick={() => setCount(count - 1)}>- 1</button>
+                    <button onClick={() => setCount(count + 1)}>+ 1</button>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root4')).render(<UseEffectCleanUp1/>);
+    </script>
+
+    <div id="root5"></div>
+
+    <script type="text/babel">
+        const {useState, useEffect} = React;
+
+        function Timer({isTrue}) {
+
+            console.log('▶ rendering Timer');
+
+            useEffect(
+                () => {
+                    console.log('▶ useEffect is working');
+                    console.log("▷ isTrue state in useEffect :", isTrue);
+                    const timer = setInterval(() => {
+                                        console.log(new Date().toLocaleTimeString());
+                                    }, 1000);
+
+                    // ↓ 함수를 반환하면 해당 컴포넌트를 언마운트 시 clearInterval을 통해 Interval을 먼저 종료 시킴
+                    return () => {
+                        clearInterval(timer);
+                        console.log('▶ clean-up is working');
+                    }
+                },
+                []
+                // ↑ 빈 배열을 작성하였으므로, 마운트 시점에만 동작
+            );
+
+            return <h3>Start Timer by UseEffectCleanUp2 Component</h3>;
+        };
+
+        function UseEffectCleanUp2() {
+
+            console.log('▶ rendering UseEffectCleanUp2');
+
+            const [isTrue, setIsTrue] = useState(false);
+
+            return(
+                <>
+                    <button onClick={() => {setIsTrue(!isTrue)}}>Timer toggle</button>
+                    {isTrue && <Timer isTrue={isTrue}/>}
+                    {/* ↑ 2회 째 클릭 시 Timer() 언마운트 => cleanup 실시 (React Developer Tools로 확인 가능) */}
+                </>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root5')).render(<UseEffectCleanUp2/>);
+    </script>
+</body>
+</html>

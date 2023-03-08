@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>06_event</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <h3>이벤트 속성에 이벤트 핸들러 함수 정의하여 이벤트 연결</h3>
+    <div id="root1"></div>
+
+    <script type="text/babel">
+        class TestEvent1 extends React.Component {
+            render() {
+                console.log('▶ TestEvent1 render 동작');
+                console.log(this.props);
+                return (
+                    <button onClick={() => alert('인라인 함수 이벤트 동작')}
+                    >{this.props.children}
+                    </button>
+                );
+            }
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(
+            <TestEvent1>인라인 함수 이벤트</TestEvent1>
+        );
+    </script>
+
+    <h3>render 함수 외부에 이벤트 함수 정의 후 함수 전달하여 이벤트 연결</h3>
+    <div id="root2"></div>
+
+    <script type="text/babel">
+        class TestEvent2 extends React.Component {
+            onClickHandler = () => alert('외부 함수 이벤트 동작');
+
+            /* 클래스 내부의 함수(메소드)를 호출할 때는 this. 을 반드시 명시해야 함 */
+            render() {
+                console.log('▶ TestEvent2 render 동작');
+                console.log(this.props);
+                return (
+                    <button onClick={this.onClickHandler}>{this.props.children}</button>
+                );
+            }
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(
+            <TestEvent2>외부 함수 이벤트</TestEvent2>
+        );
+    </script>
+
+    <h3>component에 이벤트를 props로 전달하여 이벤트 연결</h3>
+    <div id="root3"></div>
+
+    <script type="text/babel">
+        class TestEvent3 extends React.Component {
+            render() {
+                console.log('▶ TestEvent3 render 동작');
+                console.log(this.props);
+                const {onClick, children} = this.props;
+                return (
+                    <button onClick={onClick}>{children}</button>
+                );
+            }
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(
+            <TestEvent3 onClick={() => alert('props로 이벤트 전달')}>이벤트 버튼</TestEvent3>
+        );
+    </script>
+
+    <div id="root4"></div>
+
+    <script type="text/babel">
+        class TestEventHandling extends React.Component {
+            state = {
+                text: ''
+            };
+            render() {
+                return (
+                    <>
+                    <h1>Event Handling Test</h1>
+                    <input
+                            type="text"
+                            name="massage"
+                            placeholder="Please enter a text"
+                            onChange={
+                                (event) => { 
+                                    console.log(event.target.value)
+                                    this.setState({
+                                        text : event.target.value
+                                    })
+                                }
+                            }
+                            value={this.state.text}
+                        />
+                        <button
+                            onClick={
+                                () => {
+                                    alert(`${this.state.text} will be deleted`)
+                                    this.setState({
+                                        text : ''
+                                    })
+                                }
+                            }
+                    >DELETE</button>
+                    </>
+                )
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root4')).render(<TestEventHandling/>);
+    </script>
+
+    <div id="root5"></div>
+
+    <script type="text/babel">
+        class TestEventHandlingSeparation extends React.Component {
+            state = {
+                text : ''
+            };
+
+            constructor(props) {
+                super(props);
+                this.onChangeHandler = this.onChangeHandler.bind(this);
+                this.onClickHandler = this.onClickHandler.bind(this);
+            };
+
+            onChangeHandler(event) {
+                console.log("▼ onChangeHandler's this");
+                console.log(this);
+                this.setState({text : event.target.value});
+            };
+
+            onClickHandler(event) {
+                console.log("▼ onClickHandler's this");
+                console.log(this);
+                alert(`${this.state.text} will be deleted`);
+                this.setState({text : ''});
+            };
+
+            render() {
+                return (
+                    <>
+                        <h1>Event Handling Separation Test Using binding this</h1>
+                        <input
+                            type="text"
+                            name="message"
+                            placheholder="Please enter a text"
+                            onChange={this.onChangeHandler}
+                            value={this.state.text}
+                        />
+                        <button onClick={this.onClickHandler}>DELETE</button>
+                    </>
+                );
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root5')).render(<TestEventHandlingSeparation/>);
+    </script>
+
+    <div id="root6"></div>
+
+    <script type="text/babel">
+        class TestEventHandlingArrowFunc extends React.Component {
+            state = {
+                text : ''
+            };
+
+            onChangeHandler = (event) => {
+                console.log("▼ onChangeHandler's this");
+                console.log(this);
+                this.setState({text : event.target.value});
+            };
+
+            onClickHandler = (event) => {
+                console.log("▼ onClickHandler's this");
+                console.log(this);
+                alert(`${this.state.text} will be deleted`);
+                this.setState({text : ''});
+            };
+
+            render() {
+                return (
+                    <>
+                        <h1>Event Handling Separation Test Using ArrowFunc</h1>
+                        <input
+                            type="text"
+                            name="message"
+                            placheholder="Please enter a text"
+                            onChange={this.onChangeHandler}
+                            value={this.state.text}
+                        />
+                        <button onClick={this.onClickHandler}>DELETE</button>
+                    </>
+                );
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root6')).render(<TestEventHandlingArrowFunc/>);
+    </script>
+
+    <div id="root7"></div>
+
+    <script type="text/babel">
+        class TestMulitipleEventHandling1 extends React.Component {
+            state = {
+                id : '',
+                pw : ''
+            };
+
+            /* 각각의 핸들러 메소드가 처리할 상태 프로퍼티 키가 다를 경우 따로 핸들러 메소드를 작성하여 처리 */
+            onChangeHandler1 = event => {
+                this.setState ({id : event.target.value});
+            };
+
+            onChangeHandler2 = event => {
+                this.setState ({pw : event.target.value});
+            };
+
+            onClickHandler = event => {
+                alert(`ID : ${this.state.id}\nPW : ${this.state.pw}\nIs sure?`);
+                this.setState({
+                    id : '',
+                    pw : ''
+                });
+            };
+
+            render() {
+                return (
+                    <>
+                        <h3>Multiple Event Handling Test by Multiple Method</h3>
+                        <label>ID : </label>
+                        <input
+                            type="text"
+                            name="id"
+                            placeholder="Please enter your ID"
+                            value={this.state.id}
+                            onChange={this.onChangeHandler1}
+                        />
+                        <br/>
+                        <label>PW : </label>
+                        <input
+                            type="password"
+                            name="pw"
+                            placeholder="Please enter your PW"
+                            value={this.state.pw}
+                            onChange={this.onChangeHandler2}
+                        />
+                        <br/>
+                        <button onClick={this.onClickHandler}>LOGIN</button>
+                    </>
+                );
+            }
+        };
+
+        ReactDOM.createRoot(document.getElementById('root7')).render(<TestMulitipleEventHandling1/>);
+    </script>
+
+    <div id="root8"></div>
+
+    <script type="text/babel">
+        class TestMulitipleEventHandling2 extends React.Component {
+            state = {
+                id : '',
+                pw : ''
+            };
+
+            /* 이벤트가 발생한 input 태그의 name 속성 값을 활용하여 하나의 핸들러 메소드로 처리 */
+            onChangeHandler = event => {
+                this.setState({[event.target.name] : event.target.value});
+            }
+
+            onClickHandler = event => {
+                alert(`ID : ${this.state.id}\nPW : ${this.state.pw}\nIs sure?`);
+                this.setState({
+                    id : '',
+                    pw : ''
+                });
+            };
+
+            render() {
+                return (
+                    <>
+                        <h3>Multiple Event Handling Test by Multiple Method and target name</h3>
+                        <label>ID : </label>
+                        <input
+                            type="text"
+                            name="id"
+                            placeholder="Please enter your ID"
+                            value={this.state.id}
+                            onChange={this.onChangeHandler}
+                        />
+                        <br/>
+                        <label>PW : </label>
+                        <input
+                            type="password"
+                            name="pw"
+                            placeholder="Please enter your PW"
+                            value={this.state.pw}
+                            onChange={this.onChangeHandler}
+                        />
+                        <br/>
+                        <button onClick={this.onClickHandler}>LOGIN</button>
+                    </>
+                );
+            }
+        };
+
+        ReactDOM.createRoot(document.getElementById('root8')).render(<TestMulitipleEventHandling2/>);
+    </script>
+
+    <div id="root9"></div>
+
+    <script type="text/babel">
+        const {useState} = React;
+
+        function TestMulitipleEventHandling1() {
+
+            const [id, setId] = useState('');
+            const [pw, setPw] = useState('');
+
+            const onChangeId = event => setId(event.target.value);
+            const onChangePw = event => setPw(event.target.value);
+            const onClickHandler = () => {
+                alert(`ID : ${id}\nPW : ${pw}\nIs sure?`);
+                setId('');
+                setPw('');
+            }
+
+            return (
+                <>
+                    <h1>Multiple Event Handling Test by Function Component</h1>
+                    <label>ID : </label>
+                    <input
+                        type="text"
+                        name="id"
+                        placeholder="Please enter your ID"
+                        value={id}
+                        onChange={onChangeId}
+                    />
+                    <br/>
+                    <label>PW : </label>
+                    <input
+                        type="password"
+                        name="pw"
+                        placeholder="Please enter your PW"
+                        value={pw}
+                        onChange={onChangePw}
+                    />
+                    <br/>
+                    <button onClick={onClickHandler}>LOGIN</button>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root9')).render(<TestMulitipleEventHandling1/>);
+    </script>
+
+    <div id="root10"></div>
+
+    <script type="text/babel">
+        // const {useState} = React;
+
+        function TestMulitipleEventHandling2() {
+
+            const [form, setForm] = useState({
+                id : '',
+                pw : ''
+            });
+
+            const {id, pw} = form;
+
+            const onChangeHandler = event => {
+                const changedForm = {
+                    // ↓ 스프레드 연산자를 사용하여 기존 form 객체의 나머지 프로퍼티 복사
+                    ...form,
+                    // ↓ 이벤트가 발생한 name과 일치하는 프로퍼티 값은 value 값으로 수정
+                    [event.target.name] : event.target.value
+                }
+                // ↓ 통째로 수정한 객체를 setForm에 던져줌
+                setForm(changedForm);
+            };
+
+            const onClickHandler = () => {
+                alert(`ID : ${id}\nPW : ${pw}`);
+
+                setForm({
+                    id : '',
+                    pw : ''
+                });
+            };
+
+            return (
+                <>
+                    <h1>Multiple Event Handling Test by Function Component and ...</h1>
+                    <label>ID : </label>
+                    <input
+                        type="text"
+                        name="id"
+                        placeholder="Please enter your ID"
+                        value={id}
+                        onChange={onChangeHandler}
+                    />
+                    <br/>
+                    <label>PW : </label>
+                    <input
+                        type="password"
+                        name="pw"
+                        placeholder="Please enter your PW"
+                        value={pw}
+                        onChange={onChangeHandler}
+                    />
+                    <br/>
+                    <button onClick={onClickHandler}>LOGIN</button>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root10')).render(<TestMulitipleEventHandling2/>);
+    </script>
+</body>
+</html>

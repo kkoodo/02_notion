@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>00_useState</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const {useState} = React;
+
+        function TestUseState() {
+            console.log('state change');
+
+            const [message, setMessage] = useState('Click button');
+            const [color, setColor] = useState('black');
+
+            const onClickDog = () => setMessage('Dog is Love!');
+            const onClickCat = () => setMessage('Cat is Love!');
+
+            return (
+                <>
+                <h1 style={{color, backgroundColor : 'pink', border: '1px solid black'}}>{message}</h1>
+                <div>
+                    <h3>Which do you like better?</h3>
+                    <button onClick={onClickDog}>DOG</button>
+                    <button onClick={onClickCat}>CAT</button>
+                </div>
+                <div>
+                    <h3>Let's change the font color!</h3>
+                    <button onClick={() => setColor('white')}>WHITE</button>
+                    <button onClick={() => setColor('black')}>BLACK</button>
+                </div>
+                </>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<TestUseState/>);
+    </script>
+</body>
+</html>

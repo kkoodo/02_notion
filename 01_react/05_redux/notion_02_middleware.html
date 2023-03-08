@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>redux middleware</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/redux@4.2.0/dist/redux.js"></script>
+    <script src="https://unpkg.com/react-redux@8.0.4/dist/react-redux.js"></script>
+    <script src="https://unpkg.com/redux-actions@2.6.5/dist/redux-actions.js"></script>
+    <script src="https://unpkg.com/redux-logger@3.0.6/dist/redux-logger.js"></script>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; justify-content: space-around; height: 600px;">
+    <div id="root1" style="border: 1px solid pink; width: 300px; padding: 10px;"></div>
+    <div id="root2" style="border: 1px solid pink; width: 300px; padding: 10px;"></div>
+    <div id="root3" style="border: 1px solid pink; width: 300px; padding: 10px;"></div>
+    <div id="root4" style="border: 1px solid pink; width: 300px; padding: 10px;"></div>
+    <div id="root5" style="border: 1px solid pink; width: 300px; padding: 10px;"></div>
+    <div id="root6" style="border: 1px solid pink; width: 300px; padding: 10px;"></div>
+    </div>
+
+    <script type="text/babel">
+        /* 축약형 */
+        // const middleware = store => next => action => {
+        //     /* 미들웨어 수행 내용 */
+        // };
+
+        /* 축약형의 의미 */
+        // function middleware(store) {
+        //     return function(next) {
+        //         return function(action) {
+        //             /* 미들웨어 수행 내용 */
+        //         }
+        //     }
+        // };
+    </script>
+
+    <script type="text/babel">
+        // /* 미들웨어 */
+        // const consoleLoggingMiddleware = store => next => action => {
+        //     // ↓ 액션 출력 로그 기능
+        //     console.log(action);
+        //     // ↓ 다음 미들웨어 혹은 리듀서에게 액션 전달
+        //     const result = next(action);
+        //     /* return 구문을 작성하지 않은 경우 state 결괏값이 undefined 처리됨 */
+        //     // ↓ next의 반환 값(state 결괏값) 반환
+        //     return result;
+        // };
+
+        // /* ---------------------------------------------------------------------- */
+
+        // /* module */
+        // const {createActions, handleActions} = ReduxActions;
+
+        // /* 초기 값 */
+        // const initialState = 0;
+
+        // /* 액션 */
+        // const INCREMENT = 'count/INCREASE';
+        // const DECREMENT = 'count/DECREASE';
+
+        // const {count : {increase, decrease}} = createActions({
+        //     [INCREMENT] : (amount = 1) => ({incrementValue : amount}),
+        //     [DECREMENT] : (amount = 1) => ({decrementValue : amount})
+        // });
+
+        // /* 리듀서 */
+        // const reducer = handleActions(
+        //     {
+        //         [INCREMENT] : (state, {payload : {incrementValue}}) => {
+        //             return state + incrementValue;
+        //         },
+        //         [DECREMENT] : (state, {payload : {decrementValue}}) => {
+        //             return state - decrementValue;
+        //         }
+        //     },
+        //     initialState
+        // );
+
+        // /* ---------------------------------------------------------------------- */
+
+        // /* UI */
+        // const {useSelector, useDispatch} = ReactRedux;
+
+        // function App1() {
+        //     const count = useSelector(state => state);
+        //     const dispatch = useDispatch();
+
+        //     const increaseCount = () => {
+        //         dispatch(increase());
+        //     };
+
+        //     const decreaseCount = () => {
+        //         dispatch(decrease());
+        //     };
+
+        //     return (
+        //         <>
+        //             <h1>Count : {count}</h1>
+        //             <button onClick={decreaseCount}>- 1</button>
+        //             <button onClick={increaseCount}>+ 1</button>
+        //         </>
+        //     )
+        // };
+
+        // /* ---------------------------------------------------------------------- */
+
+        // const {createStore, applyMiddleware} = Redux;
+        // const store = createStore(reducer, applyMiddleware(consoleLoggingMiddleware));
+
+        // /* ---------------------------------------------------------------------- */
+
+        // const {Provider} = ReactRedux;
+
+        // ReactDOM.createRoot(document.getElementById('root1')).render(
+        //     <Provider store={store}>
+        //         <App1/>
+        //     </Provider>
+        // );    
+    </script>
+
+    <script type="text/babel">
+        // /* 커스텀 미들웨어 */
+        // const consoleLoggingMiddleware = store => next => action => {
+        //     console.log("[커스텀 미들웨어]", action);
+        //     const result = next(action);
+        //     return result;
+        // };
+
+        // /* redux-logger 미들웨어 */
+        // const logger = reduxLogger.createLogger();
+
+        // /* ---------------------------------------------------------------------- */
+
+        // /* module */
+        // const {createActions, handleActions} = ReduxActions;
+
+        // /* 초기 값 */
+        // const initialState = 0;
+
+        // /* 액션 */
+        // const INCREMENT = 'count/INCREASE';
+        // const DECREMENT = 'count/DECREASE';
+
+        // const {count : {increase, decrease}} = createActions({
+        //     [INCREMENT] : (amount = 1) => ({incrementValue : amount}),
+        //     [DECREMENT] : (amount = 1) => ({decrementValue : amount})
+        // });
+
+        // /* 리듀서 */
+        // const reducer = handleActions(
+        //     {
+        //         [INCREMENT] : (state, {payload : {incrementValue}}) => {
+        //             return state + incrementValue;
+        //         },
+        //         [DECREMENT] : (state, {payload : {decrementValue}}) => {
+        //             return state - decrementValue;
+        //         }
+        //     },
+        //     initialState
+        // );
+
+        // /* ---------------------------------------------------------------------- */
+
+        // /* UI */
+        // const {useSelector, useDispatch} = ReactRedux;
+
+        // function App2() {
+        //     const count = useSelector(state => state);
+        //     const dispatch = useDispatch();
+
+        //     const increaseCount = () => {
+        //         dispatch(increase());
+        //     };
+
+        //     const decreaseCount = () => {
+        //         dispatch(decrease());
+        //     };
+
+        //     return (
+        //         <>
+        //             <h1>Count : {count}</h1>
+        //             <button onClick={decreaseCount}>- 1</button>
+        //             <button onClick={increaseCount}>+ 1</button>
+        //         </>
+        //     )
+        // };
+
+        // /* ---------------------------------------------------------------------- */
+
+        // const {createStore, applyMiddleware} = Redux;
+        // const store = createStore(reducer, applyMiddleware(consoleLoggingMiddleware, logger));
+
+        // /* ---------------------------------------------------------------------- */
+
+        // const {Provider} = ReactRedux;
+
+        // ReactDOM.createRoot(document.getElementById('root2')).render(
+        //     <Provider store={store}>
+        //         <App2/>
+        //     </Provider>
+        // );    
+    </script>
+
+    <script type="text/babel">
+        // const {createActions, handleActions} = ReduxActions;
+
+        // /* 초깃값 */
+        // const initialState = [];
+
+        // /* 액션 */
+        // const FETCH_DATA = 'FETCH_DATA';
+
+        // const {fetchData} = createActions({
+        //     [FETCH_DATA] : async() => {
+        //         const response = await fetch('https://jsonplaceholder.typicode.com/users').then(res => res.json());
+        //         console.log('▶ after fetch', response);
+        //         return [...response];
+        //     }
+        // });
+
+        // console.log("▶ fetchData()", fetchData());
+
+        // /* 리듀서 */
+        // const reducer = handleActions(
+        //     {
+        //         [FETCH_DATA] : (state, {payload}) => {
+        //             console.log('▶ payload', payload);
+        //             return [...payload];
+        //         }
+        //     },
+        //     initialState
+        // )
+
+        // /* UI */
+        // const {useSelector, useDispatch} = ReactRedux;
+
+        // function App3() {
+        //     const users = useSelector(state => state);
+        //     const dispatch = useDispatch();
+        //     const onClickHandler = () => {dispatch(fetchData());};
+
+        //     return (
+        //         <>
+        //             <h1>회원 목록</h1>
+        //             <button onClick={onClickHandler}>조회</button>
+        //         </>
+        //     )
+        // };
+
+        // const {createStore} = Redux;
+        // const {Provider} = ReactRedux;
+
+        // const store = createStore(reducer);
+
+        // ReactDOM.createRoot(document.getElementById('root3')).render(
+        //     <Provider store={store}>
+        //         <App3/>
+        //     </Provider>
+        // );
+    </script>
+
+    <script type="text/babel">
+        // const {createActions, handleActions} = ReduxActions;
+
+        // /* 초깃값 */
+        // const initialState = [];
+
+        // /* 액션 */
+        // const FETCH_DATA = 'FETCH_DATA';
+
+        // const {fetchData} = createActions({
+        //     // ↓ payload 없는 액션과 같음 => payload를 추가하여야 함
+        //     [FETCH_DATA] : () => {}
+        // });
+
+        // /* 미들웨어 */
+        // const fetchUser = store => next => async action => {
+        //     console.log('▶ action', action);
+
+        //     const response = await fetch('https://jsonplaceholder.typicode.com/users').then(res => res.json());
+
+        //     console.log('▶ response', response);
+
+        //     // ↓ 넘겨받은 action에 payload를 추가하는 구문
+        //     next({...action, payload : response});
+        // };
+
+        // /* 리듀서 */
+        // const reducer = handleActions(
+        //     {
+        //         [FETCH_DATA] : (state, {payload}) => {
+        //             console.log('▶ payload', payload);
+        //             // ↓ 회원 배열 값을 반환하여 state 변경
+        //             return payload;
+        //         }
+        //     },
+        //     initialState
+        // );
+
+        // /* UI */
+        // const {useSelector, useDispatch} = ReactRedux;
+
+        // function App4() {
+
+        //     const users = useSelector(state => state);
+        //     const dispatch = useDispatch();
+
+        //     const onClickHandler = () => {
+        //         dispatch(fetchData());
+        //     };
+
+
+        //     return (
+        //         <>
+        //             <h1>회원 목록</h1>
+        //             <button onClick={onClickHandler}>조회</button>
+        //             <ul>
+        //                 {users.map(user => <li key={user.id}>{user.name}</li>)}    
+        //             </ul>
+        //         </>
+        //     )
+        // };
+
+        // const {createStore, applyMiddleware} = Redux;
+        // const {Provider} = ReactRedux;
+
+        // const store = createStore(reducer, applyMiddleware(fetchUser));
+
+        // ReactDOM.createRoot(document.getElementById('root1')).render(
+        //     <Provider store={store}>
+        //         <App4/>
+        //     </Provider>
+        // );
+    </script>
+
+    <script type="text/babel">
+        // const {handleActions} = ReduxActions;
+
+        // /* 초기 값 */
+        // const initialState = [];
+
+        // /*  액션 */
+        // const FETCH_DATA = 'FETCH_DATA';
+
+        // /* 미들웨어 */
+        // // const thunkMiddleware = store => next => action => {
+        // const thunkMiddleware = ({dispatch, getState}) => next => action => {
+        //     if(typeof action === 'function') {
+        //         console.log("▶ action", action);
+        //         return action(dispatch, getState);
+        //     }
+        //     console.log("▷ action", action);
+        //     return next(action);
+        // };
+
+        // /* createActions를 통한 actions 객체 생성 함수 대신 비동기 통신을 하는 async 함수 작성 */
+        // const fetchUser = async(dispatch, getState) => {
+        //     const response = await fetch('https://jsonplaceholder.typicode.com/users')
+        //                         .then(res => res.json());
+        //     console.log('▶ response', response);
+        //     dispatch({type : FETCH_DATA, payload : response});
+        // };
+
+        // /* 리듀서 */
+        // const reducer = handleActions(
+        //     {
+        //         [FETCH_DATA] : (state, {payload}) => {
+        //             console.log('▶ payload', payload);
+        //             return payload;
+        //         }
+        //     },
+        //     initialState
+        // );
+
+        // /* UI */
+        // const {useSelector, useDispatch} = ReactRedux;
+
+        // function App5() {
+
+        //     const users = useSelector(state => state);
+        //     const dispatch = useDispatch();
+
+        //     const onClickHandler = () => {
+        //         dispatch(fetchUser);
+        //     }
+
+        //     return (
+        //         <>
+        //             <h1>회원 목록</h1>
+        //             <button onClick={onClickHandler}>조회</button>
+        //             <ul>
+        //                 {users.map(user => <li key={user.id}>{user.name}</li>)}
+        //             </ul>
+        //         </>
+        //     );
+        // };
+
+        // const {createStore, applyMiddleware} = Redux;
+        // const {Provider} = ReactRedux;
+
+        // const store = createStore(reducer, applyMiddleware(thunkMiddleware));
+        // ReactDOM.createRoot(document.getElementById('root5')).render(
+        //     <Provider store={store}>
+        //         <App5/>
+        //     </Provider>
+        // );
+    </script>
+
+    <script type="text/babel">
+        // /* 여러 개의 리덕스 미들웨어 사용 시 적용 우선순위 */
+        // /* 미들웨어 */
+        // const firstMiddleware = store => next => action => {
+        //     console.log('▶ firstMiddleware');
+        //     const result = next(action);
+
+        //     return result;
+        // };
+
+        // const secondMiddleware = store => next => action => {
+        //     console.log('▶ secondMiddleware');
+        //     const result = next(action);
+
+        //     return result;
+        // };
+
+        // const thirdMiddleware = store => next => action => {
+        //     console.log('▶ thirdMiddleware');
+        //     const result = next(action);
+
+        //     return result;
+        // };
+
+        // /* module */
+        // const {createActions, handleActions} = ReduxActions;
+
+        // /* 초기 값 */
+        // const initialState = 0;
+
+        // /* 액션 */
+        // const INCREMENT = 'count/INCREASE';
+        // const DECREMENT = 'count/DECREASE';
+
+        // const {count : {increase, decrease}} = createActions({
+        //     [INCREMENT] : (amount = 1) => ({incrementValue : amount}),
+        //     [DECREMENT] : (amount = 1) => ({decrementValue : amount})
+        // });
+
+        // /* 리듀서 */
+        // const reducer = handleActions(
+        //     {
+        //         [INCREMENT] : (state, {payload : {incrementValue}}) => {
+        //             return state + incrementValue;
+        //         },
+        //         [DECREMENT] : (state, {payload : {decrementValue}}) => {
+        //             return state - decrementValue;
+        //         }
+        //     },
+        //     initialState
+        // );
+
+        // /* UI */
+        // const {useSelector, useDispatch} = ReactRedux;
+
+        // function App6() {
+        //     const count = useSelector(state => state);
+        //     const dispatch = useDispatch();
+
+        //     const increaseCount = () => {
+        //         dispatch(increase());
+        //     };
+
+        //     const decreaseCount = () => {
+        //         dispatch(decrease());
+        //     };
+
+        //     return (
+        //         <>
+        //             <h1>Count : {count}</h1>
+        //             <button onClick={decreaseCount}>- 1</button>
+        //             <button onClick={increaseCount}>+ 1</button>
+        //         </>
+        //     )
+        // };
+
+        // const {createStore, applyMiddleware} = Redux;
+        // const store = createStore(reducer, 
+        //     applyMiddleware(
+        //         firstMiddleware,
+        //         secondMiddleware,
+        //         thirdMiddleware
+        //     )
+        // );
+
+        // const {Provider} = ReactRedux;
+
+        // ReactDOM.createRoot(document.getElementById('root6')).render(
+        //     <Provider store={store}>
+        //         <App6/>
+        //     </Provider>
+        // );
+    </script>
+</body>
+</html>

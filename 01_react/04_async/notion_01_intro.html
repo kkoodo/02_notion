@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>async</title>
+</head>
+<body>
+    <script>
+        function syncTest() {
+            console.log('▶ Sync Test Start');
+        };
+
+        syncTest();
+        console.log('▶ Sync Test End');
+
+        function asyncTest() {
+            console.log('▷ Async Test Start');
+        };
+
+        /*window.*/setTimeout(asyncTest, 1500);
+        console.log('▷ Async Test End');
+    </script>
+
+    <script>
+        /* [참고] 콜백 함수 */
+        function callBackFunc(value) {
+            return `☞ ${value} 동작`;
+        };
+        function HigherFunc(value1, value2) {
+            return value1(value2);
+        };
+
+        console.log(HigherFunc(callBackFunc, 'TEST'));
+
+        /* 콜백 함수를 활용한 비동기 작업 */
+        function increase(number, callback) {
+            setTimeout(() => {
+                const result = number + 10;
+
+                if(callback) {
+                    callback(result);
+                };
+            }, 1000);
+        };
+
+        increase(0, result => console.log('[X] ', result));
+        // ↑
+        // let callback = function(result) {
+        //     console.log(result);
+        // };
+
+        console.log('▶ START');
+        increase(0, result => {
+            console.log('[A] ', result);
+            increase(result, result => {
+                console.log('[B] ', result);
+                increase(result, result => {
+                    console.log('[C] ', result);
+                    console.log('▶ END');
+                });
+            });
+        });
+        console.log('▷ MAIN');
+    </script>
+
+    <script>
+        function decrease(number) {
+            const promise = new Promise((resolve, reject) => {
+                setTimeout(
+                    () => {
+                        const result = number - 10;
+
+                        if(result < 0) {
+                            const errorMessage = new Error('▶ Error Occurred');
+                            return reject(errorMessage);
+                        };
+                        resolve(result);
+                    },
+                    1000
+                );
+            });
+            return promise;
+            // ↑ resolve 함수에 값을 넣고 객체(result 값, default 프로퍼티 등)로 반환됨
+        };
+
+        console.log('▶',decrease(30));
+
+        /* Promise & then() 사용 */
+        decrease(30)
+            .then(number => {
+                console.log("[㉠']", number);
+                return decrease(number);
+            })
+            .then(number => {
+                console.log("[㉡']", number);
+                return decrease(number);
+            })
+            .then(number => {
+                console.log("[㉢']", number);
+                return decrease(number);
+            })
+            .then(number => {
+                console.log("[㉣']", number);
+                console.log("[㉣'] End");
+            })
+            .catch(e => {
+                console.log(e);
+            })
+            .finally(() => {
+                console.log('▶ finally');
+            });
+
+        /* Promise 사용 (then() 미사용) => 비동기 동작 */
+        function syncTestWithPromise() {
+            let result = decrease(30);
+            console.log('[㉠"]', result);
+
+            result = decrease(result);
+            console.log('[㉡"]', result);
+
+            result = decrease(result);
+            console.log('[㉢"]', result);
+        };
+        syncTestWithPromise();
+
+        /* Promise / async & await / try-catch 사용 */
+        async function asyncAwaitTest1() {
+            try {
+                let result = await decrease(30);
+                console.log("[Ⅰ']", result);
+
+                result = await decrease(result);
+                console.log("[Ⅱ']", result);
+
+                result = await decrease(result);
+                console.log("[Ⅲ']", result);
+
+                result = await decrease(result);
+                console.log("[Ⅳ']", result);
+            } catch(e) {
+                console.log(e);
+            } finally {
+                console.log('▶ finally');
+            }
+        };
+        asyncAwaitTest1();
+
+        /* Promise / async & await 사용 */
+        async function asyncAwaitTest2() {
+            let result = await decrease(30);
+            console.log('[Ⅰ"]', result);
+
+            result = await decrease(result);
+            console.log('[Ⅱ"]', result);
+
+            result = await decrease(result);
+            console.log('[Ⅲ"]', result);
+
+            result = await decrease(result);
+            console.log('[Ⅳ"]', result);
+        };
+        asyncAwaitTest2();
+    </script>
+</body>
+</html>

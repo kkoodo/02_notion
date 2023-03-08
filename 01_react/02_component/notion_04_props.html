@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04_props</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.js"></script>
+</head>
+<body>
+    <div id="root1" style="width: 500px; border: 2px solid pink;"></div>
+    <div id="root2" style="width: 500px; border: 2px solid pink;"></div>
+
+    <script type="text/babel">
+        const value1 = 'value1';
+
+        /* 컴포넌트 호출 시 props가 없는 경우 */
+        function TestFunction1 (props) {
+            return <h1>This prop is {props.value}</h1>
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(
+            [
+                <TestFunction1 value={value1}/>,
+                <TestFunction1 value='value2'/>,
+                <TestFunction1/>
+            ]
+        );
+
+        /* props.value 기본값 설정 */
+        function TestFunction2 (props) {
+            return <h1>This prop is {props.value}</h1>
+        };
+
+        TestFunction2.defaultProps = {
+            value : 'default Value'
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<TestFunction2/>);
+    </script>
+
+    <hr>
+
+    <div id="root3" style="width: 500px; border: 2px solid pink;"></div>
+
+    <script type="text/babel">
+        function TestChildNode(props) {
+            return (
+                <>
+                    <h1>Child Node is <font style={{color: 'orange'}}>{props.children}</font></h1>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(
+            [
+                <TestChildNode>TEXT</TestChildNode>,
+                <TestChildNode><div>DIV 1</div><div>DIV 2</div></TestChildNode>
+            ]
+        );
+    </script>
+
+    <hr>
+
+    <div id="root4" style="width: 500px; border: 2px solid pink;"></div>
+    <div id="root5" style="width: 500px; border: 2px solid pink;"></div>
+
+    <script type="text/babel">
+        /* 객체 구조 분해 할당 */
+        function TestPropsByODA(props) {
+            const {value, children} = props;
+
+            return (
+                <>
+                    <h3>This prop is {value} and children is {children}</h3>
+                </>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root4')).render(<TestPropsByODA value='TEST ODA'>TEXT</TestPropsByODA>);
+
+        /* 매개변수 구조 분해 할당 */
+        function TestPropsByPDA({value, children}) {
+            return (
+                <>
+                    <h3>This prop is {value} and children is {children}</h3>
+                </>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root5')).render(<TestPropsByODA value='TEST PDA'>TEXT</TestPropsByODA>);
+    </script>
+
+    <hr>
+
+    <div id="root6" style="width: 500px; border: 2px solid pink;"></div>
+
+    <script type="text/babel">
+        function TestPropsVerify({value1, value2, children}) {
+            return (
+                <>
+                    <h3>{value1}. This prop is {value2} and children is {children}</h3>
+                </>
+            )
+        };
+
+        TestPropsVerify.propTypes = {
+            value1 : PropTypes.number.isRequired,
+            value2 : PropTypes.string
+        };
+
+        ReactDOM.createRoot(document.getElementById('root6')).render(
+            [
+                <TestPropsVerify value1={1} value2='TEST 1'>TEXT</TestPropsVerify>,
+                <TestPropsVerify value2={2}>TEXT</TestPropsVerify>
+            ]
+        );
+    </script>
+</body>
+</html>

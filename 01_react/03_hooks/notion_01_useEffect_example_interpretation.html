@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팀스터디 자료</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        // 순서 : 0 ~ 14
+        
+        /* [2] ☞ hooks 구조 분해 할당 */
+        const { useState, useEffect } = React;
+
+        /* [10] ☞ 자식 컴포넌트 작성 */
+        /* props로 던져준 것을 구조 분해 할당하여 편히 쓸 수 있도록 함 */
+        function TypingGame({ text, isDone, setIsDone }) {
+
+            /* [12] ☞ input 태그의 value를 관리할 state 생성 */
+            const [input, setInput] = useState('');
+
+            /* [14] ☞ 소요시간 alert 작성 */
+            /*
+                [0]번 컴포넌트 구성 요소에 있던 alert창은
+                text === input 일때에 자식 컴포넌트가 언마운트 되며 나타날 것임
+                따라서, useEffect를 쓰되, clean up(return)에 작성할 것임
+
+                다른 한가지 주안점은 alert창 종료시 소요시간이 나타난다는 점인데,
+                이는 컴포넌트를 마운트할 당시에 new Date()가 동작하였음을 의미함
+                
+                따라서, 컴포넌트가 마운트 될때의 시간을 담은 객체와
+                언마운트(clean up을 반환하는 시점) 될때의 시간을 담은 객체를 각각 작성하여야 함을 알 수 있음
+                
+                마지막으로, 해당 useEffect는 어떠한 인자에도 영향을 받지 않고
+                오로지 마운트와 언마운트 사이에 한번만 동작할 수 있도록 의존성 배열을 빈 배열로 작성함
+            */
+            useEffect(
+                () => {
+                    // 마운트 시점의 시간을 담은 객체
+                    const start = new Date().getTime();
+
+                    return () => {
+                        // 언마운트 시점(clean up 반환 시점)의 시간을 담은 객체
+                        const end = new Date().getTime();
+
+                        const interval = end - start;
+
+                        alert(`${ interval } (ms)`);
+                    }
+                },
+                []
+            );
+
+            /* [13] ☞ onKeyPressHandler 작성 */
+            /*
+                키보드 이벤트의 경우 
+                JS 브라우저 파트 > 이벤트 > 이벤트 타입 예시에서 세세히 확인 가능하지만 간단히 소개하면
+                .key 는 문자를, .code는 물리적인 키 코드를 의미함 (/ 를 press 할 경우 : key -> /, code -> Slash)
+
+                따라서 우리는 Enter를 입력할 경우 promt의 값(text)과 input 값(input)을 비교할 것이므로
+                if 문을 아래와 같이 작성할 수 있음
+
+                또한, 두 값이 일치하는 경우 자식 컴포넌트의 마운트/언마운트 여부를 결정하는
+                부모 컴포넌트의 useEffect가 동작할 수 있도록(의존성 배열에 던져진 인수가 변화할 수 있도록)
+                isDone state의 값을 변경시켜 주어야 함
+            */
+            const onKeyPressHandler = (e) => {
+                if(e.key == 'Enter') {
+                    if(text === input) {
+                        setIsDone(!isDone);
+                    }
+                }
+            }
+
+            /* [11] ☞ h1 태그와 input 태그 생성 및 이벤트 작성 */
+            /*
+                [0]번 컴포넌트 구성요소에서 자식 컴포넌트에
+                부모 컴포넌트에서 넘겨받은 text state를 담은 h1 tag와
+                사용자가 입력할 창인 input tag를 생성해야함을 알 수 있음
+
+                이때, input 태그에 사용자가 값을 입력하면 해당 값을 text stae와 비교하기 위해
+                input 창의 value를 담을 state와 onChange 이벤트가 필요함을 알 수 있고 => [12]번 작성
+                input 창에서 Enter를 누를 경우 비교를 실행하기 위해 onKeyPress 이벤트가 필요함을 알 수 있음
+
+                onChange의 경우 단순히 값을 담기 위한 용도일 뿐이므로, 
+                따로 이벤트 핸들러를 작성하지 않고 어트리뷰트 타입으로 작성하며
+                
+                onKeyPress의 경우 비교를 실행하기 위해 if 문이 동반되어야 하므로,
+                따로 이벤트 핸들러를 작성하도록 함
+            */
+            return (
+                <>
+                    <h1>{ text }</h1>
+                    <input 
+                        type="text" 
+                        onChange={ (e) => setInput(e.target.value) } 
+                        onKeyPress={ onKeyPressHandler }
+                        value={ input }
+                    />
+                </>
+            );
+        }
+
+        /* [3] ☞ 부모 컴포넌트 작성 */
+        function App() {
+            
+            /* [4] ☞ prompt 창에 입력된 값을 state로 관리 */
+            // [참고] const ABC = prompt('문자열을 입력해주세요'); 에서 console.log(ABC); 실행 시 프롬프트에 사용자가 입력한 값이 출력됨
+            const [text, setText] = useState('');
+
+            /* [6] ☞ 자식 컴포넌트의 마운트와 언마운트 관리 */
+            /*
+                &&를 이용하여 isShow state 값이 ture인 경우 자식 컴포넌트를 마운트하고,
+                false인 경우 언마운트할 수 있도록 함
+            */
+            const [isShow, setIsShow] = useState(false);
+
+            /* [8] ☞ 자식 컴포넌트의 마운트와 언마운트 관리 */
+            /* 
+                자식 컴포넌트에서 prompt 입력값(text)과 input창 입력값이 동일한지 비교한 뒤
+                그 결과를 boolean 값으로 관리하여 아래에 작성된 4-2번 useEffect의 의존성 배열에 인수로 전달함
+                해당 state가 변경될 경우(ture로 변할 경우) isShow state 값을 변경함
+            */
+            const [isDone, setIsDone] = useState(false);
+
+
+
+            /* [5] ☞ prompt 생성 */
+            /*
+                두 번째 인자로 빈 배열을 넘기면 업데이트 시점에는 더 이상 동작하지 않고
+                (=> effect가 prop이나 state의 어떤 값에도 의존 X)
+                마운트 시점(렌더링 이후 마운트와 언마운트 사이)에만 한 번씩 동작
+                ∵ 빈 배열을 넘길 경우, effect 안의 prop과 state는 초깃값을 유지
+
+                setText 메소드를 이용하여 변경된 text state 값은
+                자식 컴포넌트에 전달되어 사용자가 input tag에 입력한 값과 비교될 예정임 => [A]
+            */
+            useEffect(
+                () => {
+                    setText(prompt('문자열을 입력해주세요'));
+                },
+                []
+            );
+            
+            /* [7] ☞ 자식 컴포넌트의 마운트와 언마운트 관리 */
+            /*
+                의존성 배열에 어떠한 state를 작성하여
+                사용자가 (자식 컴포넌트에서) prompt 값과 동일한 값을 input tag에 입력한경우
+                (자식 컴포넌트에서) 어떠한 state에 변화를 주어
+                부모 컴포넌트의 useEffect가 동작하여 isShow state를 변화시켜
+                자식 컴포넌트를 언마운트 시킬 수 있도록함
+
+                이때, 자식 컴포넌트에서 어떠한 state에 변화를 주려면
+                해당 state와 state의 set 메소드 또한 같이 전달해야함    => [B]
+
+                의존성 배열에 인수를 전달한 경우 마운트 시점과
+                해당 인수의 변화가 발생하는 경우 uesEffect가 동작함
+
+                ∴ 아래의 useEffect가 최초동작하며 isShow state는 ture가 되고
+                   자식 컴포넌트가 마운트 될 수 있도록 함
+            */
+            useEffect(
+                () => {
+                    setIsShow(!isShow);
+                },
+                [isDone]
+            );
+
+            /* [9] ☞ 자식 컴포넌트의 마운트와 언마운트 관리 및 props 전달 */
+            return (
+                <>
+                    {/* 자식 컴포넌트가 마운트 되는 경우 위에서 언급된 [A], [B]를 전달함 */}
+                    { isShow && <TypingGame text={ text } isDone={ isDone } setIsDone={ setIsDone }/> }
+                </>
+            );
+        }
+
+        /* [0] ☞ 컴포넌트 구성요소 */
+        /*
+            필요 목록 : prompt, h1 tag, input tag, alert
+
+            - prompt : 브라우저에 접속하자마자 prompt 창을 띄워 사용자에게 값을 입력받음 => 부모 컴포넌트
+            - h1 tag : 입력받은 값을 value로 가지지만 사용자가 정답 입력시 언마운트가 실시되어야 함 => 자식 컴포넌트
+            - input tag : promt 실행 후 h1 태그와 함께 출력되며 사용자가 정답 입력시 언마운트가 실시되어야 함 => 자식 컴포넌트
+            - alert : input tag에 정답 입력시 호출됨 => 자식 컴포넌트
+
+            ∴ 최소 2개의 컴포넌트가 필요함을 알 수 있음
+        */
+
+        /* [1] ☞ 렌더 작성 */
+        ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+    </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03_useMemo</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1"></div>
+
+    <script type="text/babel">
+        // const {useState} = React;
+
+        const overloadCalc1 = (num) => {
+            console.log('▶ overloadCalc is working');
+            for(let i = 0; i < 999999999; i++) {};
+            return num + 1;
+        };
+
+        const normalCalc1 = (num) => {
+            console.log('▶ normalCalc is work');
+            return num + 1;
+        };
+
+        function Calculator1() {
+            const [overNumber, setOverNumber] = useState(0);
+            const [normalNumber, setNormalNumber] = useState(0);
+
+            const overloadSum = overloadCalc1(overNumber);
+            const normalSum = normalCalc1(normalNumber);
+
+            return (
+                <>
+                    <h1>Not using useMemo</h1>
+                    <h2>Overload Calculator</h2>
+                    <h3>Please change the number below</h3>
+                    <input
+                        type="number"
+                        value={overNumber}
+                        onChange={e => setOverNumber(parseInt(e.target.value))}
+                    />
+                    <span> + 1 = {overloadSum}</span>
+                    <br/>
+                    <h2>Normal Calculator</h2>
+                    <h3>Please change the number below</h3>
+                    <input
+                        type="number"
+                        value={normalNumber}
+                        onChange={e => setNormalNumber(parseInt(e.target.value))}
+                    />
+                    <span> + 1 = {normalSum}</span>
+                </>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<Calculator1/>);
+    </script>
+
+    <br>
+    <br>
+
+    <div id="root2"></div>
+
+    <script type="text/babel">
+        // const {useState, useMemo} = React;
+
+        const overloadCalc2 = (num) => {
+            console.log('▶ overloadCalc is working');
+            for(let i = 0; i < 999999999; i++) {};
+            return num + 1;
+        };
+
+        const normalCalc2 = (num) => {
+            console.log('▶ normalCalc is work');
+            return num + 1;
+        };
+
+        function Calculator2() {
+            const [overNumber, setOverNumber] = useState(0);
+            const [normalNumber, setNormalNumber] = useState(0);
+
+            const overloadSum = useMemo(() => {
+                return overloadCalc2(overNumber)
+            }, [overNumber]);
+            const normalSum = useMemo(() => {
+                return normalCalc2(normalNumber)
+            }, [normalNumber]);
+
+            return (
+                <>
+                    <h1>Using useMemo</h1>
+                    <h2>Overload Calculator</h2>
+                    <h3>Please change the number below</h3>
+                    <input
+                        type="number"
+                        value={overNumber}
+                        onChange={e => setOverNumber(parseInt(e.target.value))}
+                    />
+                    <span> + 1 = {overloadSum}</span>
+                    <br/>
+                    <h2>Normal Calculator</h2>
+                    <h3>Please change the number below</h3>
+                    <input
+                        type="number"
+                        value={normalNumber}
+                        onChange={e => setNormalNumber(parseInt(e.target.value))}
+                    />
+                    <span> + 1 = {normalSum}</span>
+                </>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<Calculator2/>);
+    </script>
+
+    <div id="root3" style="width: 300px; background-color: pink;"></div>
+
+    <script type="text/babel">
+        // const {useState, useEffect, useMemo} = React;
+
+        function TestForm1() {
+            const [isFemale, setIsFemale] = useState(true);
+            const [number, setNumber] = useState(20);
+
+            /* [A] 지역 변수에 문자열로 초기화 */
+            // number state 변화 시 gender 변화(재할당) X => ∵ 기본 자료형
+            const chooseGender = isFemale? 'Female' : 'Male';
+
+            /* useEffect의 콜백 함수 : mount 시점 및 chooseGender 값에 변화가 있을 때만 동작 */
+            useEffect(() => {
+                console.log('▶ [A] useEffect is work');
+            }, [chooseGender]);
+
+            return (
+                <>
+                    <h2>What is your gender?</h2>
+                    <p>GENDER : {chooseGender}</p>
+                    <button onClick={() => setIsFemale(!isFemale)}>TOGGLE</button>
+                    <br/>
+                    <h2>What is your age?</h2>
+                    <input
+                        type="number"
+                        value={number}
+                        onChange={e => setNumber(e.target.value)}
+                    />
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(<TestForm1/>);
+    </script>
+
+    <div id="root4" style="width: 300px; background-color: teal;"></div>
+
+    <script type="text/babel">
+        // const {useState, useEffect, useMemo} = React;
+
+        function TestForm2() {
+            const [isFemale, setIsFemale] = useState(true);
+            const [number, setNumber] = useState(20);
+
+            /* [B] 지역 변수에 객체로 초기화 */
+            // number state 변화 시 gender 변화(재할당) O => ∵ 객체의 주솟값
+            const chooseGender = {
+                gender : isFemale? 'Female' : 'Male'
+            };
+
+            /* useEffect의 콜백 함수 : mount 시점 및 chooseGender 값에 변화가 있을 때만 동작 */
+            useEffect(() => {
+                console.log('▶ [B] useEffect is work');
+            }, [chooseGender]);
+
+            return (
+                <>
+                    <h2>What is your gender?</h2>
+                    <p>GENDER : {chooseGender.gender}</p>
+                    <button onClick={() => setIsFemale(!isFemale)}>TOGGLE</button>
+                    <br/>
+                    <h2>What is your age?</h2>
+                    <input
+                        type="number"
+                        value={number}
+                        onChange={e => setNumber(e.target.value)}
+                    />
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root4')).render(<TestForm2/>);
+    </script>
+
+    <div id="root5" style="width: 300px; background-color: orange;"></div>
+
+    <script type="text/babel">
+        const {useState, useEffect, useMemo} = React;
+
+        function TestForm3() {
+            const [isFemale, setIsFemale] = useState(true);
+            const [number, setNumber] = useState(20);
+
+            /* [C] 지역 변수에 useMemo의 반환값으로 초기화 */
+            // number state 변화 시 gender 변화(재할당) X => ∵ isFemale 동일
+            const chooseGender = useMemo(() => {
+                return {
+                    gender : isFemale? 'Female' : 'Male'
+                }
+            }, [isFemale]);
+
+            /* useEffect의 콜백 함수 : mount 시점 및 chooseGender 값에 변화가 있을 때만 동작 */
+            useEffect(() => {
+                console.log('▶ [C] useEffect is work');
+            }, [chooseGender]);
+
+            return (
+                <>
+                    <h2>What is your gender?</h2>
+                    <p>GENDER : {chooseGender.gender}</p>
+                    <button onClick={() => setIsFemale(!isFemale)}>TOGGLE</button>
+                    <br/>
+                    <h2>What is your age?</h2>
+                    <input
+                        type="number"
+                        value={number}
+                        onChange={e => setNumber(e.target.value)}
+                    />
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root5')).render(<TestForm3/>);
+    </script>
+</body>
+</html>

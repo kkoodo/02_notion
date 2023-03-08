@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글자맞추기</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+        const {useState, useEffect} = React;
+
+        function Game({promptValue, enterTime, isEnter, setIsEnter}) {
+
+            const [inputText, setInputText] = useState(promptValue);
+            const [userAnswer, setUserAnswer] = useState('');
+            const [submitTime, setSubmitTime] = useState(new Date());
+            
+            const onChangeHandler = (e) => {
+                console.log('onChangeHandler is working');
+                setUserAnswer(e.target.value);
+            };
+
+            const onKeyPressHandler = (e) => {
+
+                console.log('e.key :', e.key);
+                console.log('inputText : ', inputText);
+                console.log('userAnswer :',userAnswer);
+                console.log('enterTime :', enterTime);
+                console.log('submitTime :', submitTime);
+
+                if(e.key == 'Enter' && inputText == userAnswer) {
+                    setSubmitTime(new Date());
+                    console.log('True submitTime :', submitTime);
+                    setIsEnter(false);
+                    console.log('isEnter :', isEnter);
+                    
+                };
+            };
+
+            useEffect(() => {
+
+                return() => {
+                    alert((submitTime - enterTime) + 'ms');
+                    console.log('cleanUp');
+                }
+            }, [isEnter])
+
+            return (
+                <>
+                    <h1>{promptValue}</h1>
+                    <input type="text" onChange={onChangeHandler} onKeyPress={onKeyPressHandler}/>
+                </>
+            );
+        };
+
+        function App() {
+            
+            const [enterTime, setEnterTime] = useState(new Date());
+            const [isEnter, setIsEnter] = useState(true);
+
+            const promptValue = window.prompt('텍스트를 입력해주세요');
+
+            return (
+                <>
+                {isEnter && <Game promptValue={promptValue} enterTime={enterTime} isEnter={isEnter} setIsEnter={setIsEnter}/>}
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+    </script>
+</body>
+</html>

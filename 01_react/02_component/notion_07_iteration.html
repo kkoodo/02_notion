@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07_iteration</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1"></div>
+
+    <script type="text/babel">
+        const value = ['test1', 'test2', 'test3'];
+
+        function TestListUp({value}){
+            return (
+                <ul>
+                    {value.map(((value, index) => <li key={index}>{value}</li>))}
+                </ul>
+            )
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<TestListUp value={value}/>);
+    </script>
+
+    <div id="root2"></div>
+
+    <script type="text/babel">
+        const {useState} = React;
+
+        function TestListComponent() {
+            /* state 설정 */
+            const [info, setInfo] = useState([
+                {no : 1, id : 'user01'},
+                {no : 2, id : 'user02'}
+            ])
+            const [inputText, setInputText] = useState('');
+            const [nextNo, setNextNo] = useState(3);
+
+            /* 이벤트 핸들러 설정 */
+            const onChangeHandler = e => setInputText(e.target.value);
+            const onClickHandler = () => {
+                const changedId = info.concat({
+                    no : nextNo,
+                    id : inputText
+                });
+                setNextNo(nextNo + 1);
+                setInfo(changedId);
+                setInputText('');
+            };
+            const onRemove = pram2 => {
+                const changedId = info.filter(pram3 => {return pram3.no !== pram2});
+                setInfo(changedId);
+            };
+
+            /* childNode 설정 */
+            const idList = info.map(
+                                    pram => <li key={pram.no} onDoubleClick={ () => onRemove(pram.no)}
+                                            >{pram.id}</li>
+                                    );
+
+            return (
+                <>
+                    <h3>Enter any ID in the window below</h3>
+                    <h5>Double-click the ID to delete it</h5>
+                    <input value={inputText} onChange={onChangeHandler}/>
+                    <button onClick={onClickHandler}>ADD ID</button>
+                    <ul>{idList}</ul>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<TestListComponent/>);
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1"></div>
+    <div id="root2"></div>
+    <div id="root3"></div>
+
+    <script type="text/babel" name="class-type-component">
+        class Test1 extends React.Component {
+            render() {
+                return (
+                    <h1>Class Component</h1>
+                );
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<Test1/>);
+    </script>
+
+    <script type="text/babel" name="function-type-component">
+        function Test2() {
+            return (
+                <h1>Function Component</h1>
+            );
+        };
+        ReactDOM.createRoot(document.getElementById('root2')).render(<Test2/>);
+    </script>
+
+    <script type="text/babel" name="component-composition">
+        const id = 'user123';
+        const name = 'James';
+        const age = 20;
+        const information = {id, name, age};
+
+        function Id() {
+            return <h1>{information.id}</h1>;
+        };
+
+        function Name() {
+            return <h1 style={{color : 'pink'}}>{information.name}</h1>;
+        };
+
+        function Age() {
+            return <h1 style={{backgroundColor : 'pink'}}>{information.age}</h1>;
+        };
+
+        function InformationCard() {
+            return (
+                <div style={{width: 300, border: '1px solid pink'}}>
+                    <Id/>
+                    <Name/>
+                    <Age/>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(<InformationCard/>);
+    </script>
+</body>
+</html>

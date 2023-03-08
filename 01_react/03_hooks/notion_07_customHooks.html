@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01_problem</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1" style="border: solid 1px pink; float: left; margin: 10px; padding: 10px;"></div>
+    <div id="root2" style="border: solid 1px pink; float: left; margin: 10px; padding: 10px;"></div>
+    <script type="text/babel">
+        const {useState} = React;
+
+        function App() {
+            /* input 태그별 수정되어야 할 state 작성 */
+            const [productCode, setProductCode] = useState({
+                value : '',
+                valid : false
+            });
+            const [productName, setProductName] = useState({
+                value : '',
+                valid : false
+            });
+
+            /* 각 state의 이벤트 핸들러 작성 */
+            const handleCode = (e) => {
+                const text = e.target.value;
+                if(text.length > 5) setProductCode({[e.target.name] : text, ['valid'] : true})
+                else setProductCode({[e.target.name] : text, ['valid'] : false})
+            }
+
+            const handleName = (e) => {
+                const text = e.target.value;
+                if(text.length > 5) setProductName({[e.target.name] : text, ['valid'] : true})
+                else setProductName({[e.target.name] : text, ['valid'] : false})
+            }
+
+            return (
+                <div>
+                    <label>상품코드 : </label>
+                    <input type="text" name="value" onChange={handleCode}/>
+                    <h3>{productCode.value}</h3>
+                    <h4>{productCode.valid ? "유효한 상품코드입니다." : "6글자 이상 입력하여야 합니다."}</h4>
+                    <br/>
+                    <label>상품명 : </label>
+                    <input type="text" name="value" onChange={handleName}/>
+                    <h3>{productName.value}</h3>
+                    <h4>{productName.valid ? "유효한 상품명입니다." : "6글자 이상 입력하여야 합니다."}</h4>
+                    <br/>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<App/>);
+    </script>
+
+    <script type="text/babel">
+        // const {useState} = React;
+
+        function useInput() {
+            const [value, setValue] = useState('');
+            const [valid, setValid] = useState(false);
+            const onChange = (e) => {
+                const text = e.target.value;
+                setValue(text);
+                if(text.length > 5) setValid(true)
+                else setValid(false)
+            };
+
+            return {value, valid, onChange};
+        };
+
+        function App() {
+            const productCode = useInput();
+            const productName = useInput();
+            return (
+                <div>
+                    <label>상품코드 : </label>
+                    <input type="text" value={productCode.value} onChange={productCode.onChange}/>
+                    <h3>{productCode.value}</h3>
+                    <h4>{productCode.valid ? "유효한 상품코드입니다." : "6글자 이상 입력하여야 합니다."}</h4>
+                    <br/>
+                    <label>상품명 : </label>
+                    <input type="text" value={productName.value} onChange={productName.onChange}/>
+                    {/* <input type="text" {...productName}/> => Warning: Received `false` for a non-boolean attribute `valid`. */}
+                    <h3>{productName.value}</h3>
+                    <h4>{productName.valid ? "유효한 상품명입니다." : "6글자 이상 입력하여야 합니다."}</h4>
+                    <br/>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<App/>);
+    </script>
+</body>
+</html>

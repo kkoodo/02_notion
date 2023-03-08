@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04_useCallback</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+    <div id="root1"></div>
+
+    <script type="text/babel">
+        const {useState, useEffect, useCallback} = React;
+
+        function TestNotUseCallback() {
+            const [toggle, setToggle] = useState(false);
+            const [number, setNumber] = useState(0);
+
+            const testNotUseCallback = () => {
+                console.log('▶ [A] current number :',number);
+            };
+
+            useEffect (() => {
+                console.log('▶ [A] testUseCallback is work');
+            },[testNotUseCallback])
+
+            return (
+                <>
+                    <h3>Test don't use useCallback</h3>
+                    <input
+                        type="number"
+                        value={number}
+                        onChange={e => setNumber(e.target.value)}
+                    />
+                    <button onClick={() => setToggle(!toggle)}>Toggle : {String(toggle)}</button>
+                    <br/>
+                    <button onClick={testNotUseCallback}>Test Not useCallback</button>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<TestNotUseCallback/>);
+    </script>
+
+    <br><br>
+
+    <div id="root2"></div>
+
+    <script type="text/babel">
+        // const {useState, useEffect, useCallback} = React;
+
+        function TestUseCallback() {
+            const [toggle, setToggle] = useState(false);
+            const [number, setNumber] = useState(0);
+
+            const testUseCallback = useCallback(
+                () => {
+                console.log('▶ [B] current number :',number);
+                },
+                [number]
+            );
+
+            useEffect (() => {
+                console.log('▶ [B] testUseCallback is work');
+            },[testUseCallback])
+
+            return (
+                <>
+                    <h3>Test use useCallback</h3>
+                    <input
+                        type="number"
+                        value={number}
+                        onChange={e => setNumber(e.target.value)}
+                    />
+                    <button onClick={() => setToggle(!toggle)}>Toggle : {String(toggle)}</button>
+                    <br/>
+                    <button onClick={testUseCallback}>Test useCallback</button>
+                </>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<TestUseCallback/>);
+    </script>
+
+    <div id="root3"></div>
+
+    <script type="text/babel">
+        // const {useState, useEffect, useCallback} = React;
+
+        function ParentComponent() {
+            const [size, setSize] = useState(150);
+            const [isDark, setIsDark] = useState(false);
+
+            const resize = useCallback(
+                () => {
+                        return {
+                                    backgroundColor: 'teal',
+                                    width: `${size}px`,
+                                    height: `${size}px`
+                                }
+                        },
+                        [size]
+            );
+
+            return (
+                <div style={{backgroundColor: isDark? 'black' : 'gray', width: '250px', height: '350px'}}>
+                    <h3 style={{color: 'white'}}>Background color is dark?</h3>
+                    <button onClick={() => setIsDark(!isDark)}>{isDark.toString()}</button>
+                    <br/><hr/>
+                    <input
+                        type="range"
+                        min="100"
+                        max="200"
+                        onChange={(e) => setSize(e.target.value)}
+                    />
+                    <br/><br/>
+                    <ChildComponent resize={resize}/>
+                </div>
+            );
+        };
+
+        function ChildComponent({resize}) {
+            console.log('▶ Child Component update due to Parent Component update');
+
+            const [style, setStyle] = useState({});
+            
+            useEffect(
+                () => {
+                    console.log('▶ useEffect is work');
+                    setStyle(resize());
+                },
+                [resize]
+                // ↑ 부모 함수 변화 발생 시 실행
+            );
+
+            return (
+                <div style={style}></div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(<ParentComponent/>);
+    </script>
+</body>
+</html>

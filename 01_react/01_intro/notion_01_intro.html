@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>notion_intro</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script>
+        const testElement1 = React.createElement('h1', {className : 'test1', id : 'test1'}, 'Hello!');
+        const testElement2 = React.createElement('h1', {className : 'test2', id : 'test2'}, 'Everyone!');
+
+        /* 방법 1 */
+        const domContainer = document.getElementById('root');
+        const root = ReactDOM.createRoot(domContainer);
+        root.render(testElement1);
+
+        /* 방법 2-1 */
+        ReactDOM.createRoot(document.getElementById('root')).render(testElement1);
+
+        /* 방법 2-2 */
+        ReactDOM.createRoot(document.getElementById('root')).render([testElement1, testElement2]);
+    </script>
+
+    <script>
+        // class 클래스명 extends React.Component {
+        //     render() {
+        //         return React.createElement(
+        //             만들려는 엘리먼트의 타입을 문자열로 정의,
+        //             만들려는 엘리먼트의 프로퍼티 표현,
+        //             엘리먼트의 자식 노드 표현
+        //         );
+        //     }
+        // };
+
+        // function 함수명() {
+        //     return React.createElement( 만들려는 엘리먼트의 타입을 문자열로 정의, 
+        //                                 만들려는 엘리먼트의 프로퍼티 표현, 
+        //                                 엘리먼트의 자식 노드 표현);
+        // };
+    </script>
+</body>
+</html>

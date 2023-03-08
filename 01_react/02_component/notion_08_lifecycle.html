@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>08_lifecycle</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root1"></div>
+
+    <script type="text/babel">
+        class Mount extends React.Component {
+            constructor(props) {
+                super(props);
+                console.log('▶ constructor');
+                this.state = { value : 'initial value'};
+            };
+
+            static getDerivedStateFromProps(nextProps, nextState) {
+                console.log('▶ getDerivedStateFromProps');
+                return null;
+            };
+
+            render() {
+                console.log('▶ render');
+                return (
+                    <>
+                        <h1>this.state.value : {this.state.value}</h1>
+                    </>
+                );
+            };
+
+            componentDidMount() {
+                this.setState({ value : 'change value' })
+                console.log('▶ componentDidMount');
+            }
+        };
+
+        ReactDOM.createRoot(document.getElementById('root1')).render(<Mount/>);
+    </script>
+
+    <div id="root2"></div>
+
+    <script type="text/babel">
+        class Update extends React.Component {
+            state = {now : new Date().toLocaleTimeString()};
+
+            static getDerivedStateFromProps(nextProps, nextState) {
+                console.log('▶ getDerivedStateFromProps');
+                console.log('nextProps :',nextProps);
+                console.log('nextState :',nextState);
+                return null;
+            };
+
+            shouldComponentUpdate(nextProps, nextState) {
+                console.log('▶ shouldComponentUpdate');
+                console.log('nextProps :',nextProps);
+                console.log('nextState :',nextState);
+                return true;
+            };
+
+            render() {
+                console.log('▶ render');
+                return (
+                    <>
+                        <button onClick={() => this.setState({now: new Date().toLocaleTimeString()})}>
+                            Current Time
+                        </button>
+                        <h1>{this.state.now}</h1>
+                    </>
+                );
+            };
+
+            getSnapshotBeforeUpdate(prevProps, prevState) {
+                console.log('▶ getSnapshotBeforeUpdate');
+                console.log('prevProps :',prevProps);
+                console.log('prevState :',prevState);
+                return "▶ snapshot's return value";
+            };
+
+            componentDidUpdate(prevProps, prevState, snapshot) {
+                console.log('▶ componentDidUpdate');
+                console.log('prevProps :',prevProps);
+                console.log('prevState :',prevState);
+                console.log('snapshot :',snapshot);
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root2')).render(<Update/>);
+    </script>
+
+    <div id="root3"></div>
+
+    <script type="text/babel">
+        /* ReactDOM.createRoot를 따로 정의하지 않을 경우 경고 문구 출력 */
+        // Warning: You are calling ReactDOMClient.createRoot() on a container
+        //          that has already been passed to createRoot() before. 
+        //          Instead, call root.render() on the existing root 
+        //          instead if you want to update it.
+        const root3 = ReactDOM.createRoot(document.getElementById('root3'));
+
+        class Unmount extends React.Component {
+            render() {
+                console.log('▶ render');
+                return <h1>Unmount Test</h1>
+            };
+
+            componentWillUnmount() {
+                console.log('▶ componentWillUnmount');
+            };
+        };
+
+        root3.render(<Unmount/>);
+
+        window.setTimeout(() => {root3.render(null);}, 1500);
+    </script>
+
+    <div id="root3"></div>
+
+    <script type="text/babel">
+        class ErrorBoundery extends React.Component {
+
+            state = {hasError : false};
+
+            static getDerivedStateFromError(error) {
+                console.log('▶ getDerivedStateFromError');
+                return {hasError : true};
+            };
+
+            componentDidCatch(error, info) {
+                console.log('▶ componentDidCatch');
+                console.log({error, info});
+            };
+
+            render() {
+                if(this.state.hasError) {
+                    return <h1>Error Occurred</h1>;
+                }
+                // ↓ 별다른 엘리먼트 추가 없이 자식 컴포넌트를 내보내는 용도
+                return this.props.children;
+            };
+        };
+
+        class Clock extends React.Component {
+            state = {now : new Date().toLocaleTimeString()};
+
+            render() {
+                return (
+                    <>
+                        <button onClick={() => this.setState({now : new Date().toLocaleTimeString()})}>
+                            Current Time
+                        </button>
+                        <h1>{this.states.now}</h1>
+                        {/* ↑ 에러 상황 연출 (state -> states) */}
+                    </>
+                );
+            };
+        };
+
+        class TestError extends React.Component {
+            render() {
+                return (
+                    <ErrorBoundery>
+                        <Clock/>
+                    </ErrorBoundery>
+                );
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root3')).render(<TestError/>);
+    </script>
+
+    <!-- [ErrorBoundery 심화] -->
+    <div id="root4"></div>
+
+    <script type="text/babel">
+        /* console 출력 순서 및 의미 */
+        // 이러한 의미를 지닌다는 것이지, 정확히 그런 상황이 발생한다는 것이 아님에 유의
+        /*
+            ▶ render TestError
+            ▶ render ErrorBoundery
+            ▶ render Clock              => states 포착
+            ▶ render Clock              => Clock 필드부에 states 작성 -> 에러 발생
+            ▶ getDerivedStateFromError  => 에러 도착 및 hasError state 변경
+            ▶ render ErrorBoundery      => return <h1>Error Occurred</h1> 실행
+
+            ▶ render TestError          => <ErrorBoundery><Clock/></ErrorBoundery> 구조에서
+                                            <h1>Error Occurred</h1> 구조로 변경되며 렌더링 실행
+            ▶ render ErrorBoundery
+            ▶ render Clock              => states 포착
+            ▶ render Clock              => Clock 필드부에 states 작성 -> 에러 발생
+            ▶ getDerivedStateFromError  => 에러 도착 및 hasError state 변경
+            ▶ render ErrorBoundery      => return <h1>Error Occurred</h1> 실행
+            ▷ render TestError가 렌더링 되지 않는 것은 ErrorBoundery return 값이 이미 렌더링 되어 리렌더링할 필요가 없기 때문
+            ▶ componentDidCatch
+            {error: TypeError: Cannot read properties of undefined (reading 'now')
+        */
+        class ErrorBoundery extends React.Component {
+
+            state = {hasError : false};
+
+            static getDerivedStateFromError(error) {
+                console.log('▶ getDerivedStateFromError');
+                return {hasError : true};
+            };
+
+            componentDidCatch(error, info) {
+                console.log('▶ componentDidCatch');
+                console.log({error, info});
+            };
+
+            render() {
+                console.log('▶ render ErrorBoundery');
+                if(this.state.hasError) {
+                    return <h1>Error Occurred</h1>;
+                }
+                // ↓ 별다른 엘리먼트 추가 없이 자식 컴포넌트를 내보내는 용도
+                return this.props.children;
+            };
+        };
+
+        class Clock extends React.Component {
+            state = {now : new Date().toLocaleTimeString()};
+
+            render() {
+                console.log('▶ render Clock');
+                return (
+                    <>
+                        <button onClick={() => this.setState({now : new Date().toLocaleTimeString()})}>
+                            Current Time
+                        </button>
+                        <h1>{this.states.now}</h1>
+                        {/* ↑ 에러 상황 연출 (state -> states) */}
+                    </>
+                );
+            };
+        };
+
+        class TestError extends React.Component {
+            render() {
+                console.log('▶ render TestError');
+                return (
+                    <ErrorBoundery>
+                        <Clock/>
+                    </ErrorBoundery>
+                );
+            };
+        };
+
+        ReactDOM.createRoot(document.getElementById('root4')).render(<TestError/>);
+    </script>
+</body>
+</html>
